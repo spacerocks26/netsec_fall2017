@@ -66,13 +66,14 @@ def basicUnitTest():
 
      packet3 = ClientResponse()
      packet3.Sum = packet2.Hour + packet2.Minute
+     print("Result to send back: ", packet3.Sum)
      packet3.ID = random.randint(0,4294967295)
      packet3Bytes = packet3.__serialize__()
      packet3a = ClientResponse().Deserialize(packet3Bytes)
      assert packet3 == packet3a #ensure deserialized packets are the same
 
      packet4 = ServerAnswer()
-     if packet3.Sum == (packet2.Hour + packet2.Minute):
+     if packet3.Sum == (packet2.Hour + packet2.Minute): #check computation, cant ask for new time since it might go over during this if statement
           packet4.Result = 1
      elif packet3.Sum != (packet2.Hour + packet2.Minute):
           packet4.Result = 0
@@ -80,6 +81,13 @@ def basicUnitTest():
      packet4Bytes = packet4.__serialize__()
      packet4a = ServerAnswer().Deserialize(packet4Bytes)
      assert packet4 == packet4a
+     packet4b = ServerAnswer()
+     if packet3.Sum == (packet2.Hour + packet2.Minute + 1): #want to induce a false to test
+          packet4b.Result = 1
+     elif packet3.Sum != (packet2.Hour + packet2.Minute + 1):
+          packet4b.Result = 0
+     packet4b.ID = packet4.ID
+     assert packet4 != packet4b
 
      packet22 = ServerChallenge()
      packet22.Hour = datetime.datetime.now().hour
@@ -100,6 +108,8 @@ def basicUnitTest():
      packet5a = ServerChallenge().Deserialize(packet5Bytes)
      assert packet5 == packet5a
      assert packet2 != packet5 #different times should yield different packets
+
+     print("looks like everything works")
 
 
 if __name__=="__main__":
